@@ -21,6 +21,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Produits
 Route::get('/watches', [ProductController::class, 'watches'])->name('products.watches');
 Route::get('/glasses', [ProductController::class, 'glasses'])->name('products.glasses');
+Route::get('/watches/{product}', [ProductController::class, 'watchesshow'])->name('product.watchesshow');
+Route::get('/glasses/{product}', [ProductController::class, 'glassesshow'])->name('product.glassesshow');
 
 // Panier
 Route::get('/cart', [CartController::class, 'index'])->name('cart');

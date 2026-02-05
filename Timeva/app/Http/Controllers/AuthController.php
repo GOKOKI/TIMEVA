@@ -32,4 +32,6 @@ class AuthController extends Controller
         // logique de déconnexion
         return redirect()->route('home');
     }
+
+    
 }
