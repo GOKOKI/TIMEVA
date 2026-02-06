@@ -26,7 +26,10 @@ Route::get('/glasses/{product}', [ProductController::class, 'glassesshow'])->nam
 
 // Panier
 Route::get('/cart', [CartController::class, 'index'])->name('cart');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add'); 
+Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+
 
 // Utilisateur
-Route::get('/account', [UserController::class, 'account'])->name('account');
+Route::get('/profile', [UserController::class, 'account'])->name('account');
 Route::get('/orders', [UserController::class, 'orders'])->name('orders');
