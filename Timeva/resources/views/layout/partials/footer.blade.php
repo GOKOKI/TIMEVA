@@ -24,8 +24,8 @@
         <section>
             <h3 class="font-semibold text-gray-900 mb-2">Mon Compte</h3>
             <div class="flex flex-col space-y-1 text-gray-500 text-sm">
-                <a href="{{ route('account') }}" class="hover:text-gray-900">Profil</a>
-                <a href="{{ route('orders') }}" class="hover:text-gray-900">Mes commandes</a>
+                <a href="{{ route('profile') }}" class="hover:text-gray-900">Profil</a>
+                <a href="{{ route('profile.orders') }}" class="hover:text-gray-900">Mes commandes</a>
                 <a href="{{ route('cart') }}" class="hover:text-gray-900">Mon panier</a>
             </div>
         </section>

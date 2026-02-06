@@ -8,13 +8,13 @@
         <!-- Sidebar Navigation -->
         <div class="lg:col-span-1">
             <nav class="bg-gray-50 rounded-lg overflow-hidden">
-                <a href="{{ route('account') }}" class="flex items-center gap-3 px-6 py-4 bg-gray-100 border-l-4 border-black font-medium">
+                <a href="{{ route('profile') }}" class="flex items-center gap-3 px-6 py-4 bg-gray-100 border-l-4 border-black font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     Mon profil
                 </a>
-                <a href="{{ route('orders') }}" class="flex items-center gap-3 px-6 py-4 hover:bg-gray-100 transition-colors">
+                <a href="{{ route('profile.orders') }}" class="flex items-center gap-3 px-6 py-4 hover:bg-gray-100 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
@@ -28,7 +28,7 @@
             <div class="bg-white border border-gray-200 rounded-lg p-8">
                 <h2 class="text-2xl font-bold mb-6">Informations personnelles</h2>
 
-                <form action="{{ route('account') }}" method="POST">
+                <form action="{{ route('profile.update') }}" method="POST">
                     @csrf
                     @method('PUT')
 
