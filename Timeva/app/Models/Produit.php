@@ -16,7 +16,6 @@ class Produit extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     
-    // Désactiver les timestamps automatiques car on utilise date_creation/date_modification
     public $timestamps = false;
 
     protected $fillable = [

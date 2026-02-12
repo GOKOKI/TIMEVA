@@ -46,7 +46,7 @@ class VarianteProduit extends Model
     ];
 
     // Relations
-    public function produit(): BelongsTo // Correction: singulier
+    public function produit(): BelongsTo
     {
         return $this->belongsTo(Produit::class, 'id_produit', 'id');
     }
@@ -70,6 +70,12 @@ class VarianteProduit extends Model
     public function getEstDisponibleAttribute(): bool
     {
         return $this->quantite_stock > 0 && $this->produit->disponible;
+    }
+
+    // ✅ Accesseur pour l'image (fallback)
+    public function getImageAttribute(): ?string
+    {
+        return $this->img ?? $this->produit->img;
     }
 
     // Scopes
