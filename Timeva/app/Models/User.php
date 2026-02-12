@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -44,5 +46,53 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relations avec les modèles personnalisés
+     */
+    
+    // Relation 1:1 avec Profil
+    public function profil(): HasOne
+    {
+        return $this->hasOne(Profil::class, 'user_id', 'id');
+    }
+
+    // Relation 1:N avec Commandes
+    public function commandes(): HasMany
+    {
+        return $this->hasMany(Commande::class, 'user_id', 'id');
+    }
+
+    // Relation 1:N avec Panier
+    public function panier(): HasMany
+    {
+        return $this->hasMany(Panier::class, 'user_id', 'id');
+    }
+
+    // Accesseur pour vérifier si l'utilisateur est admin
+    public function getIsAdminAttribute(): bool
+    {
+        return $this->profil && $this->profil->role === 'admin';
+    }
+
+    // Accesseur pour obtenir le nom complet depuis le profil
+    public function getNomCompletAttribute(): ?string
+    {
+        return $this->profil?->nom_complet;
+    }
+
+    // Scope pour les utilisateurs avec profil
+    public function scopeAvecProfil($query)
+    {
+        return $query->has('profil');
+    }
+
+    // Scope pour les administrateurs
+    public function scopeAdministrateurs($query)
+    {
+        return $query->whereHas('profil', function ($q) {
+            $q->where('role', 'admin');
+        });
     }
 }
