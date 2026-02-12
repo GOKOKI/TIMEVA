@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
-class ArticleCommande extends Model // Correction: singulier
+class ArticleCommande extends Model
 {
     use HasFactory;
 
@@ -22,7 +22,7 @@ class ArticleCommande extends Model // Correction: singulier
         'commande_id',
         'variant_id',
         'nom_produit',
-        'infos_variante',
+        'infos_variante', // ✅ Peut contenir l'URL de l'image au moment de l'achat
         'prix_unitaire',
         'quantite',
         'date_creation'
@@ -52,6 +52,14 @@ class ArticleCommande extends Model // Correction: singulier
     public function getTotalAttribute(): float
     {
         return $this->prix_unitaire * $this->quantite;
+    }
+
+    // ✅ Accesseur pour l'image (au moment de la commande)
+    public function getImageAttribute(): ?string
+    {
+        // Si 'infos_variante' contient du JSON avec l'image
+        $infos = json_decode($this->infos_variante, true);
+        return $infos['img'] ?? $this->variante?->image;
     }
 
     // Scopes

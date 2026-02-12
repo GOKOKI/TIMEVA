@@ -61,6 +61,12 @@ class Panier extends Model
         return $this->variante->prix_final * $this->quantite;
     }
 
+        // ✅ Accesseur pour l'image (via la variante)
+    public function getImageAttribute(): ?string
+    {
+        return $this->variante?->image;
+    }
+
     // Scopes
     public function scopeParUtilisateur($query, $userId)
     {
