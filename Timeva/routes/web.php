@@ -19,6 +19,10 @@ Route::middleware('guest')->group(function () {
     // Auth - Connexion
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+
+    // Auth - Forgot Password
+    Route::get('/forgot-password', [AuthController::class, 'showForgot'])->name('forgot');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.send');
 });
 
 // ========== AUTH ROUTES (connectés) ==========
@@ -73,15 +77,8 @@ Route::get('/glasses/{product}', function ($product) {
 
 // ========== ADMIN ROUTES ==========
 // Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-//     // Dashboard admin
 //     Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
-    
-//     // Gestion produits
 //     Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
-    
-//     // Gestion commandes
 //     Route::resource('orders', App\Http\Controllers\Admin\OrderController::class);
-    
-//     // Gestion utilisateurs
 //     Route::resource('users', App\Http\Controllers\Admin\UserController::class);
 // });

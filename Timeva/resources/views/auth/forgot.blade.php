@@ -1,16 +1,24 @@
 @extends('layout.app')
 
-@section('title', 'Connexion - TIMEVA')
+@section('title', 'Mot de passe oublié - TIMEVA')
 
 @section('content')
 <div class="auth-container">
     <section class="auth-card">
         <div class="auth-header">
-            <h2 class="auth-title">Connexion</h2>
-            <p class="auth-subtitle">Connectez-vous à votre compte <span class="brand-name">TIMEVA</span></p>
+            <h2 class="auth-title">Mot de passe oublié</h2>
+            <p class="auth-subtitle">
+                Entrez votre email pour recevoir un lien de réinitialisation <span class="brand-name">TIMEVA</span>
+            </p>
         </div>
-        
-        {{-- Messages d'erreur --}}
+
+
+        @if (session('status'))
+            <div class="alert alert-success">
+                <p class="alert-text">{{ session('status') }}</p>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="alert alert-error">
                 @foreach ($errors->all() as $error)
@@ -19,86 +27,34 @@
             </div>
         @endif
 
-        {{-- Message de succès --}}
-        @if (session('success'))
-            <div class="alert alert-success">
-                <p class="alert-text">{{ session('success') }}</p>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}" class="auth-form">
+        <form method="POST" action="{{ route('forgot.send') }}" class="auth-form">
             @csrf
-            
             <div class="form-group">
                 <label for="email" class="form-label">Adresse Email</label>
                 <div class="input-wrapper">
                     <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                     </svg>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
-                           value="{{ old('email') }}"
-                           required 
-                           autofocus 
-                           placeholder="votre@email.com"
-                           class="form-input @error('email') input-error @enderror">
+                    <input type="email" id="email" name="email" class="form-input" required autofocus>
                 </div>
-                @error('email')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
             </div>
 
-            <div class="form-group">
-                <label for="password" class="form-label">Mot de passe</label>
-                <div class="input-wrapper">
-                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                    <input type="password" 
-                           id="password" 
-                           name="password" 
-                           required
-                           placeholder="••••••••"
-                           class="form-input @error('password') input-error @enderror">
-                </div>
-                @error('password')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="form-options">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="remember" class="checkbox-input">
-                    <span class="checkbox-text">Se souvenir de moi</span>
-                </label>
-                
-                <a href="{{ route('forgot') }}" class="forgot-link">
-                    Mot de passe oublié ?
-                </a>
-            </div>
-
-            <button type="submit" class="btn-submit">
-                Se connecter
-            </button>
+            <button type="submit" class="btn-submit">Envoyer le lien</button>
         </form>
 
         <div class="auth-footer">
             <p class="footer-text">
-                Pas encore de compte ? 
-                <a href="{{ route('register') }}" class="footer-link">
-                    Inscrivez-vous ici
-                </a>
+                Vous vous souvenez de votre mot de passe ?
+                <a href="{{ route('login') }}" class="footer-link">Retour à la connexion</a>
             </p>
         </div>
     </section>
 </div>
 
 <style>
-/* Import des polices élégantes */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap');
 
-/* Container */
 .auth-container {
     min-height: calc(100vh - 4rem);
     display: flex;
@@ -108,7 +64,6 @@
     padding: 2rem 1rem;
 }
 
-/* Card */
 .auth-card {
     width: 100%;
     max-width: 28rem;
@@ -118,7 +73,6 @@
     padding: 3rem 2.5rem;
 }
 
-/* Header */
 .auth-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -146,7 +100,6 @@
     letter-spacing: 0.1em;
 }
 
-/* Alerts */
 .alert {
     padding: 1rem;
     border-radius: 0.75rem;
@@ -173,7 +126,6 @@
     color: #166534;
 }
 
-/* Form */
 .auth-form {
     display: flex;
     flex-direction: column;
@@ -191,10 +143,8 @@
     font-size: 0.95rem;
     font-weight: 600;
     color: #374151;
-    letter-spacing: 0.02em;
 }
 
-/* Input Wrapper */
 .input-wrapper {
     position: relative;
 }
@@ -228,10 +178,6 @@
     box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
 }
 
-.form-input::placeholder {
-    color: #9ca3af;
-}
-
 .input-error {
     border-color: #ef4444;
     background: #fef2f2;
@@ -241,57 +187,8 @@
     font-family: 'Cormorant Garamond', serif;
     font-size: 0.875rem;
     color: #dc2626;
-    margin-top: 0.25rem;
 }
 
-/* Form Options */
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.checkbox-input {
-    width: 1.125rem;
-    height: 1.125rem;
-    border-radius: 0.375rem;
-    border: 2px solid #d1d5db;
-    cursor: pointer;
-}
-
-.checkbox-input:checked {
-    background: #111827;
-    border-color: #111827;
-}
-
-.checkbox-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
-    color: #6b7280;
-}
-
-.forgot-link {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
-    color: #6b7280;
-    transition: color 0.3s ease;
-}
-
-.forgot-link:hover {
-    color: #111827;
-    text-decoration: underline;
-}
-
-/* Submit Button */
 .btn-submit {
     width: 100%;
     padding: 1rem;
@@ -299,7 +196,6 @@
     font-family: 'Cinzel', serif;
     font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
     color: white;
     background: #111827;
     border: none;
@@ -314,7 +210,6 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Footer */
 .auth-footer {
     margin-top: 2rem;
     text-align: center;
@@ -331,7 +226,6 @@
     font-weight: 600;
     color: #111827;
     letter-spacing: 0.05em;
-    transition: color 0.3s ease;
 }
 
 .footer-link:hover {

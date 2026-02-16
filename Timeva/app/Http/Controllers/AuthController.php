@@ -7,42 +7,46 @@ use App\Models\Profil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // AFFICHAGE DU FORMULAIRE D'INSCRIPTION
+
+    /*
+    |--------------------------------------------------------------------------
+    | REGISTER
+    |--------------------------------------------------------------------------
+    */
+
     public function showRegister()
     {
-        return view('auth.register'); // ✅ Retourne la vue
+        return view('auth.register');
     }
 
-    // TRAITEMENT DE L'INSCRIPTION
     public function register(Request $request)
     {
-        // 1. ✅ Validation des données
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
             'prenom' => 'nullable|string|max:255',
             'nom' => 'nullable|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
             'tel' => 'nullable|string|max:20',
             'adresse' => 'nullable|string|max:255',
             'ville' => 'nullable|string|max:100',
             'code_postal' => 'nullable|string|max:10',
-            'pays' => 'nullable|string|max:100'
+            'pays' => 'nullable|string|max:100',
         ]);
 
-        // 2. ✅ Création de l'utilisateur
+        // Création utilisateur
         $user = User::create([
-            'nom' => $validated['nom'],
-            'prenom'=>$validated['prenom'],
+            'prenom' => $validated['prenom'] ?? null,
+            'nom' => $validated['nom'] ?? null,
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
-        // 3. ✅ Création du profil associé
+        // Création profil
         Profil::create([
             'id' => Str::uuid(),
             'user_id' => $user->id,
@@ -55,50 +59,56 @@ class AuthController extends Controller
             'pays' => $validated['pays'] ?? 'France',
             'role' => 'user',
             'date_creation' => now(),
-            'date_modification' => now()
+            'date_modification' => now(),
         ]);
 
-        // 4. ✅ Connexion automatique
         Auth::login($user);
 
-        // 5. ✅ Redirection avec message de succès
-        return redirect()->route('home')->with('success', 'Inscription réussie !');
+        return redirect()->route('home')
+            ->with('success', 'Inscription réussie !');
     }
 
-    // AFFICHAGE DU FORMULAIRE DE CONNEXION
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN
+    |--------------------------------------------------------------------------
+    */
+
     public function showLogin()
     {
-        return view('auth.login'); // ✅ Retourne la vue
+        return view('auth.login');
     }
 
-    // TRAITEMENT DE LA CONNEXION
     public function login(Request $request)
     {
-        // 1. ✅ Validation des données
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // 2. ✅ Tentative de connexion
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+
             $request->session()->regenerate();
 
-            // Redirection selon le rôle
-            if (Auth::user()->is_admin) {
-                return redirect()->route('admin.dashboard');
-            }
-
-            return redirect()->intended(route('home'))->with('success', 'Connexion réussie !');
+            return redirect()->intended(route('home'))
+                ->with('success', 'Connexion réussie !');
         }
 
-        // 3. ✅ Échec de connexion
         return back()->withErrors([
             'email' => 'Email ou mot de passe incorrect.',
         ])->onlyInput('email');
     }
 
-    // DÉCONNEXION
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
+
     public function logout(Request $request)
     {
         Auth::logout();
@@ -106,6 +116,78 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('success', 'Déconnexion réussie.');
+        return redirect()->route('home')
+            ->with('success', 'Déconnexion réussie.');
+    }
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORGOT PASSWORD
+    |--------------------------------------------------------------------------
+    */
+
+    public function showForgot()
+    {
+        return view('auth.forgot');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', 'Lien de réinitialisation envoyé !')
+            : back()->withErrors(['email' => 'Impossible d’envoyer le lien.']);
+    }
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET PASSWORD
+    |--------------------------------------------------------------------------
+    */
+
+    public function showResetForm($token)
+    {
+        return view('auth.reset', [
+            'token' => $token
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only(
+                'email',
+                'password',
+                'password_confirmation',
+                'token'
+            ),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')
+                ->with('success', 'Mot de passe réinitialisé avec succès !')
+            : back()->withErrors(['email' => 'Échec de la réinitialisation.']);
     }
 }

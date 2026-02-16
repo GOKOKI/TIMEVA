@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('profils', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id')->unique();
+            $table->id(); // Changé de uuid à id
+            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade'); // Changé de uuid à foreignId
             $table->string('prenom')->nullable();
             $table->string('nom')->nullable();
             $table->string('tel')->nullable();
@@ -22,13 +21,7 @@ return new class extends Migration
             $table->string('code_postal')->nullable();
             $table->string('pays')->default('France');
             $table->enum('role', ['admin', 'user'])->default('user');
-            $table->timestamp('date_creation')->useCurrent();
-            $table->timestamp('date_modification')->useCurrent()->useCurrentOnUpdate();
-            
-            $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
+            $table->timestamps(); // Remplace date_creation et date_modification
         });
     }
 

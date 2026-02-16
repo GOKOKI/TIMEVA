@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('produits', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('nom');
             $table->decimal('prix', 10, 2);
             $table->enum('categorie', ['montres', 'lunettes']);
@@ -20,8 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('img')->nullable();
             $table->boolean('disponible')->default(true);
-            $table->timestamp('date_creation')->useCurrent();
-            $table->timestamp('date_modification')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
             $table->softDeletes();
         });
     }
