@@ -13,79 +13,44 @@
     </div>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Produit 1 -->
+        @forelse($produits as $produit)
+        <!-- Produit -->
         <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <a href="{{ route('product.glassesshow', ['product' => 1]) }}" class="block">
+            <a href="{{ route('products.show', $produit) }}" class="block">
                 <div class="aspect-square bg-gray-100 flex items-center justify-center p-8">
-                    <img src="{{ asset('images/glasses1.jpg') }}" alt="Carree Minialiste" class="w-full h-full object-contain">
+                    <img src="{{ $produit->img ?? asset('images/placeholder.jpg') }}" 
+                         alt="{{ $produit->nom }}" 
+                         class="w-full h-full object-contain">
                 </div>
                 <div class="p-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">TIMEVA GLASSES</p>
-                    <h4 class="text-lg font-semibold mb-2">Carree Minialiste</h4>
-                    <p class="text-xl font-bold mb-3">120.00 €</p>
-                    <div class="flex gap-2">
-                        <span class="w-5 h-5 rounded-full bg-black border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-amber-700 border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-gray-400 border-2 border-gray-300 cursor-pointer"></span>
-                    </div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ $produit->marque ?? 'TIMEVA' }}</p>
+                    <h4 class="text-lg font-semibold mb-2">{{ $produit->nom }}</h4>
+                    <p class="text-xl font-bold mb-3">{{ number_format($produit->prix, 2) }} €</p>
+                    
+                    @if($produit->variantes->isNotEmpty())
+                        <div class="flex gap-2">
+                            @foreach($produit->variantes->pluck('couleur')->filter()->unique()->take(4) as $couleur)
+                                <span class="w-5 h-5 rounded-full border-2 border-gray-300 cursor-pointer" 
+                                      style="background-color: {{ $couleur }};"
+                                      title="{{ $couleur }}"></span>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </a>
         </div>
-
-        <!-- Produit 2 -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <a href="{{ route('product.glassesshow', ['product' => 2]) }}" class="block">
-                <div class="aspect-square bg-gray-100 flex items-center justify-center p-8">
-                    <img src="{{ asset('images/glasses2.jpg') }}" alt="Aviateur Classique" class="w-full h-full object-contain">
-                </div>
-                <div class="p-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">TIMEVA GLASSES</p>
-                    <h4 class="text-lg font-semibold mb-2">Aviateur Classique</h4>
-                    <p class="text-xl font-bold mb-3">150.00 €</p>
-                    <div class="flex gap-2">
-                        <span class="w-5 h-5 rounded-full bg-gray-800 border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-yellow-600 border-2 border-gray-300 cursor-pointer"></span>
-                    </div>
-                </div>
-            </a>
+        @empty
+        <div class="col-span-full text-center py-12">
+            <p class="text-gray-500">Aucun produit disponible pour le moment.</p>
         </div>
-
-        <!-- Produit 3 -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <a href="{{ route('product.glassesshow', ['product' => 3]) }}" class="block">
-                <div class="aspect-square bg-gray-100 flex items-center justify-center p-8">
-                    <img src="{{ asset('images/glasses3.jpg') }}" alt="Ronde Vintage" class="w-full h-full object-contain">
-                </div>
-                <div class="p-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">TIMEVA GLASSES</p>
-                    <h4 class="text-lg font-semibold mb-2">Ronde Vintage</h4>
-                    <p class="text-xl font-bold mb-3">135.00 €</p>
-                    <div class="flex gap-2">
-                        <span class="w-5 h-5 rounded-full bg-rose-300 border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-blue-300 border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-green-300 border-2 border-gray-300 cursor-pointer"></span>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Produit 4 -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <a href="{{ route('product.glassesshow', ['product' => 4]) }}" class="block">
-                <div class="aspect-square bg-gray-100 flex items-center justify-center p-8">
-                    <img src="{{ asset('images/glasses4.jpg') }}" alt="Sport Performance" class="w-full h-full object-contain">
-                </div>
-                <div class="p-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">TIMEVA GLASSES</p>
-                    <h4 class="text-lg font-semibold mb-2">Sport Performance</h4>
-                    <p class="text-xl font-bold mb-3">180.00 €</p>
-                    <div class="flex gap-2">
-                        <span class="w-5 h-5 rounded-full bg-black border-2 border-gray-300 cursor-pointer"></span>
-                        <span class="w-5 h-5 rounded-full bg-red-600 border-2 border-gray-300 cursor-pointer"></span>
-                    </div>
-                </div>
-            </a>
-        </div>
+        @endforelse
     </div>
+
+    <!-- Pagination -->
+    @if(isset($produits) && method_exists($produits, 'links'))
+        <div class="mt-8">
+            {{ $produits->links() }}
+        </div>
+    @endif
 </div>
 @endsection

@@ -12,9 +12,59 @@
             <p class="text-gray-500 mt-1">Créez votre compte <span class="font-semibold">Timeva</span></p>
         </div>
 
+        <!-- Messages d'erreur -->
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                @foreach ($errors->all() as $error)
+                    <p class="text-sm text-red-600">{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
         <!-- Formulaire -->
         <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
             @csrf
+
+            <!-- Nom -->
+            <div>
+                <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nom
+                </label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{ old('name') }}"
+                    placeholder="Jean"
+                    required
+                    class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900
+                           @error('name') border-red-500 @else border-gray-300 @enderror"
+                >
+                @error('name')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!--Prenom-->
+            <div>
+                <label for="Prenom" class="block text-sm font-medium text-gray-700 mb-1">
+                    Prenom
+                </label>
+                <input
+                    type="text"
+                    id="Prenom"
+                    name="Prenom"
+                    value="{{ old('Prenom') }}"
+                    placeholder="Dupont"
+                    required
+                    class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900
+                           @error('Prenom') border-red-500 @else border-gray-300 @enderror"
+                >
+                @error('Prenom')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
 
             <!-- Email -->
             <div>
@@ -25,10 +75,15 @@
                     type="email"
                     id="email"
                     name="email"
+                    value="{{ old('email') }}"
                     placeholder="votre@email.com"
                     required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900
+                           @error('email') border-red-500 @else border-gray-300 @enderror"
                 >
+                @error('email')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Mot de passe -->
@@ -41,8 +96,12 @@
                     id="password"
                     name="password"
                     required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900
+                           @error('password') border-red-500 @else border-gray-300 @enderror"
                 >
+                @error('password')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Confirmation -->

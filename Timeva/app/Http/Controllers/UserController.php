@@ -11,23 +11,33 @@ class UserController extends Controller
 
     public function profile()
     {
-        return view('profile.index');
+        $user = Auth::user();
+        $profil = $user->profil ?? new Profil(['user_id' => $user->id]);
+        
+        return view('profile.index', compact('profil'));
     }
 
     public function updateProfile(Request $request)
     {
         $validated = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:10',
+            'prenom' => 'nullable|string|max:255',
+            'nom' => 'nullable|string|max:255',
+            'tel' => 'nullable|string|max:20',
+            'adresse' => 'nullable|string|max:255',
+            'ville' => 'nullable|string|max:100',
+            'code_postal' => 'nullable|string|max:10',
+            'pays' => 'nullable|string|max:100'
         ]);
 
-        Auth::user()->update($validated);
+        $user = Auth::user();
+        
+        $profil = $user->profil ?? new Profil(['user_id' => $user->id, 'id' => Str::uuid()]);
+        
+        $profil->fill($validated);
+        $profil->date_modification = now();
+        $profil->save();
 
-        return redirect()->route('profile')->with('success', 'Profil mis à jour avec succès !');
+        return back()->with('success', 'Profil mis à jour avec succès');
     }
 
     public function orders()
