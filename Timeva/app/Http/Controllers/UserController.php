@@ -50,4 +50,20 @@ class UserController extends Controller
         $commandes = Auth::user()->commandes()->latest()->get();
         return view('profile.orders', compact('commandes'));
     }
+
+    public function orderDetails(Commande $order)
+    {
+        $order->load('articles');
+        return view('profile.order-details', compact('order'));
+    }
+
+    public function cancelOrder(Commande $order)
+    {
+        abort_if($order->user_id !== Auth::id(), 403);
+        abort_if($order->statut !== 'en_attente', 403, 'Cette commande ne peut plus être annulée.');
+
+        $order->update(['statut' => 'annulé']);
+
+        return back()->with('success', 'Commande annulée avec succès.');
+    }
 }

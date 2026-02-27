@@ -17,19 +17,19 @@
                 {{-- Badge de statut dynamique --}}
                 @php
                     $statusClasses = [
-                        'en attente' => 'bg-yellow-100 text-yellow-700',
-                        'confirmé' => 'bg-blue-100 text-blue-700',
-                        'expédié' => 'bg-purple-100 text-purple-700',
-                        'livré' => 'bg-green-100 text-green-700',
-                        'annulé' => 'bg-red-100 text-red-700'
+                        'en_attente' => 'bg-yellow-100 text-yellow-700',
+                        'confirmé'   => 'bg-blue-100 text-blue-700',
+                        'expédié'    => 'bg-purple-100 text-purple-700',
+                        'livré'      => 'bg-green-100 text-green-700',
+                        'annulé'     => 'bg-red-100 text-red-700',
                     ];
                     $statusClass = $statusClasses[$commande->statut] ?? 'bg-gray-100 text-gray-700';
                     $statusLabels = [
-                        'en attente' => 'En attente',
-                        'confirmé' => 'Confirmée',
-                        'expédié' => 'Expédiée',
-                        'livré' => 'Livrée',
-                        'annulé' => 'Annulée'
+                        'en_attente' => 'En attente',
+                        'confirmé'   => 'Confirmée',
+                        'expédié'    => 'Expédiée',
+                        'livré'      => 'Livrée',
+                        'annulé'     => 'Annulée',
                     ];
                 @endphp
                 <span class="px-3 py-1 {{ $statusClass }} rounded-full text-sm font-medium">
@@ -68,8 +68,8 @@
                         Voir les détails →
                     </a>
                     
-                    @if($commande->statut === 'en attente')
-                    <form action="{{ route('profile.orders.cancel', $commande->id) }}" method="POST" class="inline">
+                    @if($commande->statut === 'en_attente')
+                    <form action="{{ route('profile.orders.cancel', $commande) }}" method="POST" class="inline">
                         @csrf
                         @method('PATCH')
                         <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium"

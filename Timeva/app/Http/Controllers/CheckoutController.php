@@ -86,11 +86,11 @@ class CheckoutController extends Controller
     /**
      * Afficher la page de confirmation de commande
      */
-    public function success(Commande $order)
+    public function success(Commande $commande)
     {
-        $order->load('articles');
+        $commande->load('articles');
 
-        return view('checkout.success', compact('order'));
+        return view('checkout.success', compact('commande'));
     }
 
     /**

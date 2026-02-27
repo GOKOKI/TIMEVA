@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/', 'updateProfile')->name('update');
         Route::get('/orders', 'orders')->name('orders');
         Route::get('/orders/{order}', 'orderDetails')->name('orders.details');
+        Route::patch('/orders/{order}/cancel', 'cancelOrder')->name('orders.cancel');
     });
     
     // ===== PANIER (CART) =====
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('checkout')->name('checkout.')->controller(CheckoutController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/process', 'process')->name('process');
-        Route::get('/success/{order}', 'success')->name('success');
+        Route::get('/success/{commande}', 'success')->name('success');
         Route::get('/cancel', 'cancel')->name('cancel');
     });
 });
