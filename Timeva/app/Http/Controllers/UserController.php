@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Profil;
+use App\Models\Commande;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    // ... tes autres méthodes existantes ...
-
     public function profile()
     {
         $user = Auth::user();
@@ -48,6 +47,7 @@ class UserController extends Controller
 
     public function orders()
     {
-        return view('profile.orders');
+        $commandes = Auth::user()->commandes()->latest()->get();
+        return view('profile.orders', compact('commandes'));
     }
 }

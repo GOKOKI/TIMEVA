@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Profil;
+use App\Models\Panier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -75,6 +77,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
 
             $request->session()->regenerate();
+            $this->loadCartFromDb();
 
             return redirect()->intended(route('home'))
                 ->with('success', 'Connexion réussie !');
@@ -173,5 +176,51 @@ class AuthController extends Controller
             ? redirect()->route('login')
                 ->with('success', 'Mot de passe réinitialisé avec succès !')
             : back()->withErrors(['email' => 'Échec de la réinitialisation.']);
+    }
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CART
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Charge le panier sauvegardé en DB dans la session.
+     * Les articles déjà présents en session ont la priorité.
+     */
+    private function loadCartFromDb(): void
+    {
+        $panierItems = Panier::with('variant.product')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        if ($panierItems->isEmpty()) {
+            return;
+        }
+
+        $cart = Session::get('cart', []);
+
+        foreach ($panierItems as $item) {
+            $variantId = $item->variant_id;
+
+            // La session a la priorité — on n'écrase pas ce que l'utilisateur a ajouté avant de se connecter
+            if (isset($cart[$variantId]) || !$item->variant || !$item->variant->product) {
+                continue;
+            }
+
+            $variant = $item->variant;
+            $cart[$variantId] = [
+                'name'         => $variant->product->name,
+                'variant_name' => trim(($variant->color ?? '') . ' ' . ($variant->size ?? '')),
+                'price'        => $variant->product->prix,
+                'quantity'     => $item->quantite,
+                'image'        => $variant->image_url ?? $variant->product->image,
+                'slug'         => $variant->product->slug,
+            ];
+        }
+
+        Session::put('cart', $cart);
     }
 }

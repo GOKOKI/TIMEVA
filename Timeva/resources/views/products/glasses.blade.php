@@ -13,26 +13,32 @@
     </div>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        @forelse($produits as $produit)
-        <!-- Produit -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-            <a href="{{ route('products.glasses', $produit) }}" class="block">
-                <div class="aspect-square bg-gray-100 flex items-center justify-center p-8">
-                    <img src="{{ $produit->img ?? asset('images/placeholder.jpg') }}" 
-                         alt="{{ $produit->nom }}" 
+        {{-- Correction : on utilise $products (en anglais comme dans le contrôleur) --}}
+        @forelse($products as $product)
+        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+            {{-- Correction de la route : on utilise 'products.show' avec le slug --}}
+            <a href="{{ route('products.show', $product->slug) }}" class="block">
+                <div class="aspect-square bg-gray-50 flex items-center justify-center p-8">
+                    {{-- Correction : $product->image au lieu de $product->img --}}
+                    <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/placeholder.jpg') }}" 
+                         alt="{{ $product->name }}" 
                          class="w-full h-full object-contain">
                 </div>
                 <div class="p-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">{{ $produit->marque ?? 'TIMEVA' }}</p>
-                    <h4 class="text-lg font-semibold mb-2">{{ $produit->nom }}</h4>
-                    <p class="text-xl font-bold mb-3">{{ number_format($produit->prix, 2) }} €</p>
+                    {{-- Correction : $product->brand au lieu de $product->marque --}}
+                    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $product->brand ?? 'TIMEVA' }}</p>
+                    {{-- Correction : $product->name au lieu de $product->nom --}}
+                    <h4 class="text-lg font-semibold mb-2 text-gray-800">{{ $product->name }}</h4>
+                    {{-- Correction : $product->prix reste le même --}}
+                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 2, ',', ' ') }} €</p>
                     
-                    @if($produit->variantes->isNotEmpty())
-                        <div class="flex gap-2">
-                            @foreach($produit->variantes->pluck('couleur')->filter()->unique()->take(4) as $couleur)
-                                <span class="w-5 h-5 rounded-full border-2 border-gray-300 cursor-pointer" 
-                                      style="background-color: {{ $couleur }};"
-                                      title="{{ $couleur }}"></span>
+                    {{-- Affichage des pastilles de couleurs des variantes --}}
+                    @if($product->variants && $product->variants->isNotEmpty())
+                        <div class="flex gap-2 mt-2">
+                            @foreach($product->variants->pluck('color')->filter()->unique()->take(4) as $color)
+                                <span class="w-4 h-4 rounded-full border border-gray-200" 
+                                      style="background-color: {{ $color }};"
+                                      title="{{ $color }}"></span>
                             @endforeach
                         </div>
                     @endif
@@ -40,16 +46,20 @@
             </a>
         </div>
         @empty
-        <div class="col-span-full text-center py-12">
-            <p class="text-gray-500">Aucun produit disponible pour le moment.</p>
+        <div class="col-span-full text-center py-20">
+            <div class="text-gray-300 mb-4">
+                <svg class="mx-auto w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 12H4M12 4v16" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <p class="text-gray-500 text-lg">Aucune paire de lunettes disponible pour le moment.</p>
         </div>
         @endforelse
     </div>
 
-    <!-- Pagination -->
-    @if(isset($produits) && method_exists($produits, 'links'))
-        <div class="mt-8">
-            {{ $produits->links() }}
+    @if(isset($products) && method_exists($products, 'links'))
+        <div class="mt-12">
+            {{ $products->links() }}
         </div>
     @endif
 </div>
