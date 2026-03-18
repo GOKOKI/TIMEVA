@@ -8,7 +8,7 @@
     {{-- En-tête --}}
     <div class="mb-10">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Toutes les collections</h1>
-        <p class="text-gray-500">Montres et lunettes de luxe — {{ $counts['tous'] }} produits</p>
+        <p class="text-gray-500">Montres et lunettes de luxe</p>
     </div>
 
     {{-- Onglets filtre --}}
@@ -28,7 +28,6 @@
                       ? 'border-gray-900 text-gray-900'
                       : 'border-transparent text-gray-500 hover:text-gray-700' }}">
             {{ $tab['label'] }}
-            <span class="ml-1 text-xs text-gray-400">({{ $tab['count'] }})</span>
         </a>
         @endforeach
     </div>
