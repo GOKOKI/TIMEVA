@@ -75,61 +75,38 @@
                 <h2 class="page-title">Produits Vedettes</h2>
                 <p class="page-subtitle">Découvrez notre sélection exclusive</p>
             </div>
-            
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                @forelse($produitsVedettes ?? [] as $produit)
-                <div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-                    <a href="{{ route('products.show', $produit->id) }}" class="block">
-                        <div class="aspect-square bg-gray-100 flex items-center justify-center p-6 overflow-hidden">
-                            <img src="{{ $produit->img ?? asset('images/placeholder.jpg') }}" 
-                                 alt="{{ $produit->nom }}" 
-                                 class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                @foreach($produitsVedettes as $produit)
+                <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow group border border-gray-100">
+                    <a href="{{ route('products.show', $produit->slug) }}" class="block">
+                        <div class="aspect-square bg-gray-50 flex items-center justify-center p-8 group-hover:bg-gray-100 transition-colors">
+                            <img src="{{ $produit->image ? asset('storage/' . $produit->image) : asset('images/placeholder.jpg') }}"
+                                 alt="{{ $produit->name }}"
+                                 class="w-full h-full object-contain transition-transform group-hover:scale-110 duration-300">
                         </div>
-                        <div class="p-5">
-                            <p class="product-brand">{{ $produit->marque ?? 'TIMEVA' }}</p>
-                            <h4 class="product-name">{{ $produit->nom }}</h4>
-                            <p class="product-price">{{ number_format($produit->prix, 2) }} €</p>
-                            
-                            @if(isset($produit->variantes) && $produit->variantes->isNotEmpty())
-                                <div class="flex gap-2">
-                                    @foreach($produit->variantes->pluck('couleur')->filter()->unique()->take(4) as $couleur)
-                                        <span class="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-gray-900 transition-colors cursor-pointer" 
-                                              style="background-color: {{ $couleur }};"
-                                              title="{{ $couleur }}"></span>
-                                    @endforeach
-                                </div>
+                        <div class="p-4">
+                            <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $produit->brand ?? 'TIMEVA' }}</p>
+                            <h4 class="text-lg font-semibold mb-2 group-hover:text-gray-900 text-gray-800">{{ $produit->name }}</h4>
+                            <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($produit->prix, 0, ',', ' ') }} FCFA</p>
+                            @if($produit->variants->isNotEmpty())
+                            <div class="flex gap-2">
+                                @foreach($produit->variants->pluck('color')->filter()->unique()->take(4) as $color)
+                                <span class="w-5 h-5 rounded-full border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
+                                      style="background-color: {{ $color }};"
+                                      title="{{ $color }}"></span>
+                                @endforeach
+                            </div>
                             @endif
                         </div>
                     </a>
                 </div>
-                @empty
-                <!-- Produits de démonstration -->
-                @for($i = 1; $i <= 4; $i++)
-                <div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-                    <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-6">
-                        <svg class="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <div class="p-5">
-                        <p class="product-brand">TIMEVA</p>
-                        <h4 class="product-name">
-                            {{ $i <= 2 ? 'Montre Premium ' . $i : 'Lunettes Style ' . ($i - 2) }}
-                        </h4>
-                        <p class="product-price">{{ number_format(rand(150, 4000), 2) }} €</p>
-                        <div class="flex gap-2">
-                            <span class="w-6 h-6 rounded-full bg-gray-900 border-2 border-gray-300"></span>
-                            <span class="w-6 h-6 rounded-full bg-gray-500 border-2 border-gray-300"></span>
-                        </div>
-                    </div>
-                </div>
-                @endfor
-                @endforelse
+                @endforeach
             </div>
 
             <div class="text-center mt-12">
-                <a href="{{ route('products.watches') }}" class="btn-primary-large">
-                    Voir toute la collection →
+                <a href="{{ route('collections') }}" class="btn-primary-large">
+                    Voir toutes les collections →
                 </a>
             </div>
         </div>
@@ -156,7 +133,7 @@
                         </svg>
                     </div>
                     <h3 class="service-title">Livraison Express</h3>
-                    <p class="text-gray-600">Livraison gratuite sous 24-48h partout en France.</p>
+                    <p class="text-gray-600">Livraison gratuite sous 24-48h à Cotonou et dans toute l'Afrique de l'Ouest.</p>
                 </div>
                 
                 <div class="text-center group">
@@ -166,7 +143,7 @@
                         </svg>
                     </div>
                     <h3 class="service-title">Retours Faciles</h3>
-                    <p class="text-gray-600">30 jours pour changer d'avis, retour gratuit et sans frais.</p>
+                    <p class="text-gray-600">7 jours pour changer d'avis. Retour simple et remboursement rapide.</p>
                 </div>
             </div>
         </div>

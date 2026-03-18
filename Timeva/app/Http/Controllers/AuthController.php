@@ -79,6 +79,14 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $this->loadCartFromDb();
 
+            $user = Auth::user();
+            $user->load('profil');
+
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard')
+                    ->with('success', 'Bienvenue sur le panneau d\'administration !');
+            }
+
             return redirect()->intended(route('home'))
                 ->with('success', 'Connexion réussie !');
         }
