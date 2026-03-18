@@ -8,19 +8,19 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Mix 4 montres + 4 lunettes pour la section Produits Vedettes
+        // Mix 2 montres + 2 lunettes pour la section Produits Vedettes
         $montres = Product::where('category', 'watches')
             ->where('is_active', true)
             ->with('variants')
             ->latest()
-            ->limit(4)
+            ->limit(2)
             ->get();
 
         $lunettes = Product::where('category', 'glasses')
             ->where('is_active', true)
             ->with('variants')
             ->latest()
-            ->limit(4)
+            ->limit(2)
             ->get();
 
         $produitsVedettes = $montres->merge($lunettes);

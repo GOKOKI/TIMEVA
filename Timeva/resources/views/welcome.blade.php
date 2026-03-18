@@ -76,28 +76,36 @@
                 <p class="page-subtitle">Découvrez notre sélection exclusive</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($produitsVedettes as $produit)
-                <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow group border border-gray-100">
+                @php $totalStock = $produit->variants->sum('stock_quantity'); @endphp
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
                     <a href="{{ route('products.show', $produit->slug) }}" class="block">
-                        <div class="aspect-square bg-gray-50 flex items-center justify-center p-8 group-hover:bg-gray-100 transition-colors">
+                        <div class="relative aspect-square bg-gray-100">
                             <img src="{{ $produit->image ? asset('storage/' . $produit->image) : asset('images/placeholder.jpg') }}"
                                  alt="{{ $produit->name }}"
-                                 class="w-full h-full object-contain transition-transform group-hover:scale-110 duration-300">
+                                 class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500">
+                            @if($totalStock > 0 && $totalStock <= 3)
+                            <span class="absolute top-3 right-3 bg-white text-gray-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                                Plus que {{ $totalStock }}
+                            </span>
+                            @endif
                         </div>
                         <div class="p-4">
-                            <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $produit->brand ?? 'TIMEVA' }}</p>
-                            <h4 class="text-lg font-semibold mb-2 group-hover:text-gray-900 text-gray-800">{{ $produit->name }}</h4>
-                            <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($produit->prix, 0, ',', ' ') }} FCFA</p>
-                            @if($produit->variants->isNotEmpty())
-                            <div class="flex gap-2">
-                                @foreach($produit->variants->pluck('color')->filter()->unique()->take(4) as $color)
-                                <span class="w-5 h-5 rounded-full border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
-                                      style="background-color: {{ $color }};"
-                                      title="{{ $color }}"></span>
-                                @endforeach
+                            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">{{ $produit->brand ?? 'TIMEVA' }}</p>
+                            <h4 class="text-base font-bold text-gray-900 mb-3">{{ $produit->name }}</h4>
+                            <div class="flex items-center justify-between">
+                                <p class="text-base font-bold text-gray-900">{{ number_format($produit->prix, 0, ',', ' ') }} FCFA</p>
+                                @if($produit->variants->isNotEmpty())
+                                <div class="flex gap-1.5">
+                                    @foreach($produit->variants->pluck('color')->filter()->unique()->take(4) as $color)
+                                    <span class="w-4 h-4 rounded-full border border-gray-200"
+                                          style="background-color: {{ $color }};"
+                                          title="{{ $color }}"></span>
+                                    @endforeach
+                                </div>
+                                @endif
                             </div>
-                            @endif
                         </div>
                     </a>
                 </div>

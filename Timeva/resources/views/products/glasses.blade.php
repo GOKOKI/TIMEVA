@@ -13,35 +13,35 @@
     </div>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {{-- Correction : on utilise $products (en anglais comme dans le contrôleur) --}}
         @forelse($products as $product)
-        <div class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
-            {{-- Correction de la route : on utilise 'products.show' avec le slug --}}
+        @php $totalStock = $product->variants ? $product->variants->sum('stock_quantity') : 0; @endphp
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
             <a href="{{ route('products.show', $product->slug) }}" class="block">
-                <div class="aspect-square bg-gray-50 flex items-center justify-center p-8">
-                    {{-- Correction : $product->image au lieu de $product->img --}}
-                    <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/placeholder.jpg') }}" 
-                         alt="{{ $product->name }}" 
-                         class="w-full h-full object-contain">
+                <div class="relative aspect-square bg-gray-100">
+                    <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/placeholder.jpg') }}"
+                         alt="{{ $product->name }}"
+                         class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500">
+                    @if($totalStock > 0 && $totalStock <= 3)
+                    <span class="absolute top-3 right-3 bg-white text-gray-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                        Plus que {{ $totalStock }}
+                    </span>
+                    @endif
                 </div>
                 <div class="p-4">
-                    {{-- Correction : $product->brand au lieu de $product->marque --}}
-                    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $product->brand ?? 'TIMEVA' }}</p>
-                    {{-- Correction : $product->name au lieu de $product->nom --}}
-                    <h4 class="text-lg font-semibold mb-2 text-gray-800">{{ $product->name }}</h4>
-                    {{-- Correction : $product->prix reste le même --}}
-                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 0, ',', ' ') }} FCFA</p>
-                    
-                    {{-- Affichage des pastilles de couleurs des variantes --}}
-                    @if($product->variants && $product->variants->isNotEmpty())
-                        <div class="flex gap-2 mt-2">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">{{ $product->brand ?? 'TIMEVA' }}</p>
+                    <h4 class="text-base font-bold text-gray-900 mb-3">{{ $product->name }}</h4>
+                    <div class="flex items-center justify-between">
+                        <p class="text-base font-bold text-gray-900">{{ number_format($product->prix, 0, ',', ' ') }} FCFA</p>
+                        @if($product->variants && $product->variants->isNotEmpty())
+                        <div class="flex gap-1.5">
                             @foreach($product->variants->pluck('color')->filter()->unique()->take(4) as $color)
-                                <span class="w-4 h-4 rounded-full border border-gray-200" 
-                                      style="background-color: {{ $color }};"
-                                      title="{{ $color }}"></span>
+                            <span class="w-4 h-4 rounded-full border border-gray-200"
+                                  style="background-color: {{ $color }};"
+                                  title="{{ $color }}"></span>
                             @endforeach
                         </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </a>
         </div>
