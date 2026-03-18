@@ -49,7 +49,7 @@
                         @endif
                         × {{ $article->quantite }}
                     </p>
-                    <p class="font-medium">{{ number_format($article->prix_unitaire * $article->quantite, 2) }} €</p>
+                    <p class="font-medium">{{ number_format($article->prix_unitaire * $article->quantite, 0, ',', ' ') }} FCFA</p>
                 </div>
                 @endforeach
             </div>
@@ -58,7 +58,7 @@
             <div class="border-t border-gray-200 pt-4">
                 <div class="flex items-center justify-between mb-3">
                     <p class="text-lg font-bold">Total</p>
-                    <p class="text-xl font-bold">{{ number_format($commande->montant, 2) }} €</p>
+                    <p class="text-xl font-bold">{{ number_format($commande->montant, 0, ',', ' ') }} FCFA</p>
                 </div>
                 
                 {{-- Actions selon le statut --}}

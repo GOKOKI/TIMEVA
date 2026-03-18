@@ -36,7 +36,7 @@
                     <li><a href="{{ route('home') }}">Accueil</a></li>
                     <li><a href="{{ route('products.watches') }}">Montres</a></li>
                     <li><a href="{{ route('products.glasses') }}">Lunettes</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="{{ route('contact') }}">Contact</a></li>
                 </ul>
             </section>
 
@@ -85,9 +85,9 @@
                     © 2026 <span class="font-semibold">TIMEVA</span>. Tous droits réservés.
                 </p>
                 <div class="flex gap-6 text-sm">
-                    <a href="#" class="footer-legal-link">Politique de confidentialité</a>
-                    <a href="#" class="footer-legal-link">Conditions générales</a>
-                    <a href="#" class="footer-legal-link">Mentions légales</a>
+                    <a href="{{ route('pages.confidentialite') }}" class="footer-legal-link">Politique de confidentialité</a>
+                    <a href="{{ route('pages.conditions') }}" class="footer-legal-link">Conditions générales</a>
+                    <a href="{{ route('pages.mentions') }}" class="footer-legal-link">Mentions légales</a>
                 </div>
             </div>
         </div>

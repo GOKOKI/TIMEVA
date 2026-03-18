@@ -36,7 +36,7 @@
                 <!-- Menu utilisateur simplifié pour le profil -->
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-gray-600 hidden md:block">
-                        {{ Auth::user()->name }}
+                        {{ Auth::user()->prenom ?? Auth::user()->nom }}
                     </span>
                     
                     <!-- Bouton retour au site (optionnel) -->
