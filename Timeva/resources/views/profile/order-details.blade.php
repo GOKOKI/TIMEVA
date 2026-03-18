@@ -54,7 +54,7 @@
                 @endif
                 <p class="text-sm text-gray-500">Qté : {{ $article->quantite }}</p>
             </div>
-            <p class="font-medium">{{ number_format($article->prix_unitaire * $article->quantite, 2) }} €</p>
+            <p class="font-medium">{{ number_format($article->prix_unitaire * $article->quantite, 0, ',', ' ') }} FCFA</p>
         </div>
         @endforeach
     </div>
@@ -62,7 +62,7 @@
     {{-- Total --}}
     <div class="flex items-center justify-between border-t border-gray-200 pt-4 mb-6">
         <p class="text-lg font-bold">Total</p>
-        <p class="text-xl font-bold">{{ number_format($order->montant, 2) }} €</p>
+        <p class="text-xl font-bold">{{ number_format($order->montant, 0, ',', ' ') }} FCFA</p>
     </div>
 
     {{-- Actions --}}

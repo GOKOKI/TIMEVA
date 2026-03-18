@@ -1,136 +1,151 @@
 @extends('layout.app')
 
-{{-- On utilise 'name' au lieu de 'nom' --}}
-@section('title', $product->name ?? 'Détail produit')
+@section('title', $product->name)
 
 @section('content')
-<div class="container py-5">
+<div class="container mx-auto px-4 py-12">
 
-    <div class="row">
-        {{-- Image du produit --}}
-        <div class="col-md-6 mb-4">
-            {{-- Utilisation du champ 'image' et de la marque 'brand' --}}
-            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default.jpg') }}"
-                 class="img-fluid rounded shadow-sm"
-                 alt="{{ $product->name }}">
+    {{-- Fil d'Ariane --}}
+    <nav class="text-sm text-gray-500 mb-8">
+        <a href="{{ route('home') }}" class="hover:text-gray-900">Accueil</a>
+        <span class="mx-2">/</span>
+        <a href="{{ route('products.' . $product->category) }}" class="hover:text-gray-900">
+            {{ $product->category === 'watches' ? 'Montres' : 'Lunettes' }}
+        </a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">{{ $product->name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+        {{-- ===== IMAGE ===== --}}
+        <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden flex items-center justify-center p-8">
+            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/placeholder.jpg') }}"
+                 alt="{{ $product->name }}"
+                 class="w-full h-full object-contain">
         </div>
 
-        {{-- Détails du produit --}}
-        <div class="col-md-6">
-            <span class="badge bg-secondary mb-2">{{ ucfirst($product->category) }}</span>
-            <h1 class="display-5 fw-bold">{{ $product->name }}</h1>
-            
-            @if($product->brand)
-                <p class="text-muted">Marque : <strong>{{ $product->brand }}</strong></p>
-            @endif
+        {{-- ===== INFOS PRODUIT ===== --}}
+        <div class="flex flex-col justify-center" x-data="{ selectedVariant: null, selectedColor: null, stock: 0 }">
 
-            <h3 class="text-primary my-3">
-                {{ number_format($product->prix, 2, ',', ' ') }} €
-            </h3>
+            {{-- Badge catégorie --}}
+            <span class="inline-block text-xs font-medium tracking-widest uppercase text-gray-500 mb-3">
+                {{ $product->brand }} · {{ $product->category === 'watches' ? 'Montre' : 'Lunettes' }}
+            </span>
 
-            <p class="lead">
-                {{ $product->description }}
+            <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
+
+            <p class="text-2xl font-bold text-gray-900 mb-6">
+                {{ number_format($product->prix, 0, ',', ' ') }} FCFA
             </p>
 
-            {{-- Gestion des Variantes --}}
-            @if($product->variants && $product->variants->count())
-                <hr>
-                <h5 class="mb-3">Choisir une option :</h5>
+            @if($product->description)
+            <p class="text-gray-600 leading-relaxed mb-8">{{ $product->description }}</p>
+            @endif
 
-                <div class="d-flex flex-wrap gap-2 mb-3">
+            {{-- ===== VARIANTES ===== --}}
+            @if($product->variants && $product->variants->count())
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-semibold text-gray-900">Couleur</p>
+                    <span x-text="selectedColor" class="text-sm text-gray-500"></span>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
                     @foreach($product->variants as $variant)
-                        <button type="button"
-                                class="btn btn-outline-dark variant-btn"
-                                onclick="selectVariant(event, {{ $variant->id }}, {{ $variant->stock_quantity }})">
-                            {{ $variant->color ?? $variant->size ?? 'Option' }}
-                        </button>
+                    <button type="button"
+                            @click="selectedVariant = {{ $variant->id }}; selectedColor = '{{ $variant->color }}'; stock = {{ $variant->stock_quantity }};
+                                    document.getElementById('add-to-cart-form').action = '{{ url('cart/add') }}/' + {{ $variant->id }};
+                                    document.getElementById('addToCartBtn').disabled = {{ $variant->stock_quantity }} <= 0;
+                                    document.getElementById('quantity_input').max = {{ $variant->stock_quantity }};"
+                            :class="selectedVariant === {{ $variant->id }}
+                                ? 'bg-gray-900 text-white border-gray-900'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-900'"
+                            class="px-4 py-2 rounded-full border text-sm font-medium transition-all">
+                        {{ $variant->color }}
+                        @if($variant->size) · {{ $variant->size }} @endif
+                    </button>
                     @endforeach
                 </div>
 
-                <p class="small">
-                    Disponibilité : 
-                    <span id="stock-display" class="fw-bold text-muted">Sélectionnez une option</span>
+                {{-- Disponibilité --}}
+                <div class="mt-3 text-sm" x-show="selectedVariant !== null">
+                    <span x-show="stock > 0" class="text-green-600 font-medium" style="display:none">
+                        ✓ <span x-text="stock"></span> en stock
+                    </span>
+                    <span x-show="stock <= 0" class="text-red-500 font-medium" style="display:none">
+                        Rupture de stock
+                    </span>
+                </div>
+                <p class="mt-2 text-xs text-gray-400" x-show="selectedVariant === null">
+                    Sélectionnez une couleur pour continuer
                 </p>
+            </div>
             @endif
 
-            {{-- Formulaire d'ajout au panier --}}
-            <form action="{{ route('cart.add') }}" method="POST" class="mt-4">
+            {{-- ===== QUANTITÉ + PANIER ===== --}}
+            <form id="add-to-cart-form" action="#" method="POST"
+                  data-base-url="{{ url('cart/add') }}">
                 @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <input type="hidden" name="variant_id" id="selected_variant_id">
 
-                <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <label for="quantity" class="col-form-label">Quantité :</label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="number"
-                               name="quantity"
-                               id="quantity_input"
-                               value="1"
-                               min="1"
-                               class="form-control"
-                               style="width:80px;">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex items-center border border-gray-300 rounded-full overflow-hidden">
+                        <button type="button"
+                                onclick="const q = document.getElementById('quantity_input'); if(q.value > 1) q.value--;"
+                                class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 transition-colors font-medium">−</button>
+                        <input type="number" name="quantity" id="quantity_input" value="1" min="1"
+                               class="w-14 text-center border-0 focus:outline-none text-sm font-medium">
+                        <button type="button"
+                                onclick="const q = document.getElementById('quantity_input'); const mx = parseInt(q.max||999); if(!q.max || parseInt(q.value) < mx) q.value++;"
+                                class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 transition-colors font-medium">+</button>
                     </div>
                 </div>
 
-                <button type="submit" 
-                        class="btn btn-dark btn-lg mt-4 w-100"
+                <button type="submit"
                         id="addToCartBtn"
-                        {{ $product->variants->count() ? 'disabled' : '' }}>
-                    <i class="bi bi-cart-plus"></i> Ajouter au panier
+                        {{ $product->variants->count() ? 'disabled' : '' }}
+                        class="w-full bg-gray-900 text-white py-4 rounded-full text-base font-semibold
+                               hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    @auth
+                        Ajouter au panier
+                    @else
+                        <a href="{{ route('login') }}">Se connecter pour acheter</a>
+                    @endauth
                 </button>
+
+                @guest
+                <p class="text-center text-xs text-gray-400 mt-2">
+                    <a href="{{ route('login') }}" class="underline hover:text-gray-700">Connexion</a> requise pour passer commande
+                </p>
+                @endguest
             </form>
+
         </div>
     </div>
 
-    {{-- Produits similaires --}}
+    {{-- ===== PRODUITS SIMILAIRES ===== --}}
     @if(isset($similaires) && $similaires->count())
-        <div class="mt-5">
-            <hr class="my-5">
-            <h3 class="mb-4">Vous aimerez aussi</h3>
-            <div class="row">
-                @foreach($similaires as $item)
-                    <div class="col-md-3 mb-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('images/default.jpg') }}"
-                                 class="card-img-top"
-                                 alt="{{ $item->name }}">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">{{ $item->name }}</h6>
-                                <p class="text-primary fw-bold">{{ number_format($item->prix, 2, ',', ' ') }} €</p>
-                                <a href="{{ route('products.show', $item->slug) }}"
-                                   class="btn btn-sm btn-dark">Voir le produit</a>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
+    <div class="mt-20">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Vous aimerez aussi</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($similaires as $item)
+            <a href="{{ route('products.show', $item->slug) }}"
+               class="group bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all">
+                <div class="aspect-square bg-gray-50 flex items-center justify-center p-6 group-hover:bg-gray-100 transition-colors">
+                    <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('images/placeholder.jpg') }}"
+                         alt="{{ $item->name }}"
+                         class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                </div>
+                <div class="p-4">
+                    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $item->brand }}</p>
+                    <h4 class="text-sm font-semibold text-gray-900 mb-2 group-hover:text-black">{{ $item->name }}</h4>
+                    <p class="text-base font-bold text-gray-900">{{ number_format($item->prix, 0, ',', ' ') }} FCFA</p>
+                </div>
+            </a>
+            @endforeach
         </div>
+    </div>
     @endif
+
 </div>
-
-<script>
-    function selectVariant(event, id, stock) {
-        // Gestion visuelle des boutons
-        document.querySelectorAll('.variant-btn').forEach(btn => btn.classList.remove('active', 'btn-dark'));
-        document.querySelectorAll('.variant-btn').forEach(btn => btn.classList.add('btn-outline-dark'));
-        
-        event.target.classList.remove('btn-outline-dark');
-        event.target.classList.add('active', 'btn-dark');
-
-        // Mise à jour des infos
-        document.getElementById('selected_variant_id').value = id;
-        document.getElementById('stock-display').innerText = stock > 0 ? stock + " en stock" : "Rupture de stock";
-        document.getElementById('stock-display').className = stock > 0 ? "fw-bold text-success" : "fw-bold text-danger";
-        
-        // Limiter la quantité max selon le stock
-        const qtyInput = document.getElementById('quantity_input');
-        qtyInput.max = stock;
-        if(qtyInput.value > stock) qtyInput.value = stock;
-
-        // Activer/Désactiver le bouton
-        document.getElementById('addToCartBtn').disabled = (stock <= 0);
-    }
-</script>
 @endsection

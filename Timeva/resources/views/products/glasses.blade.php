@@ -30,7 +30,7 @@
                     {{-- Correction : $product->name au lieu de $product->nom --}}
                     <h4 class="text-lg font-semibold mb-2 text-gray-800">{{ $product->name }}</h4>
                     {{-- Correction : $product->prix reste le même --}}
-                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 2, ',', ' ') }} €</p>
+                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 0, ',', ' ') }} FCFA</p>
                     
                     {{-- Affichage des pastilles de couleurs des variantes --}}
                     @if($product->variants && $product->variants->isNotEmpty())

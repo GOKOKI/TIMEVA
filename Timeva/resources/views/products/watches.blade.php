@@ -30,7 +30,7 @@
                     <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">{{ $product->brand ?? 'TIMEVA' }}</p>
                     {{-- Correction : $product->name --}}
                     <h4 class="text-lg font-semibold mb-2 group-hover:text-gray-900 text-gray-800">{{ $product->name }}</h4>
-                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 2, ',', ' ') }} €</p>
+                    <p class="text-xl font-bold mb-3 text-gray-900">{{ number_format($product->prix, 0, ',', ' ') }} FCFA</p>
                     
                     {{-- Correction : $product->variants et couleur (en anglais) --}}
                     @if($product->variants && $product->variants->isNotEmpty())
