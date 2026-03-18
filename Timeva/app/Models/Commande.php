@@ -22,6 +22,8 @@ class Commande extends Model
         'adresse_livraison',
         'code_postal',
         'pays_expedition',
+        'fedapay_transaction_id',
+        'paiement_statut',
     ];
 
     protected $casts = [

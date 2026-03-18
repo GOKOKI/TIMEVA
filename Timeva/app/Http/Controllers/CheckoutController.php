@@ -29,7 +29,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Traiter la commande : valider, enregistrer, notifier, vider le panier
+     * Créer la commande et rediriger vers FedaPay
      */
     public function process(Request $request)
     {
@@ -47,12 +47,13 @@ class CheckoutController extends Controller
 
         $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
-        // Créer la commande
+        // Créer la commande (statut non_paye en attente de confirmation FedaPay)
         $commande = Commande::create([
             'user_id'           => Auth::id(),
             'reference'         => 'CMD-' . strtoupper(Str::random(8)),
             'montant'           => $total,
             'statut'            => 'en_attente',
+            'paiement_statut'   => 'non_paye',
             'adresse_livraison' => $validated['adresse_livraison'],
             'code_postal'       => $validated['code_postal'],
             'pays_expedition'   => $validated['pays_expedition'],
@@ -72,15 +73,87 @@ class CheckoutController extends Controller
             ]);
         }
 
-        // Vider le panier
-        Session::forget('cart');
+        // Initier le paiement FedaPay
+        try {
+            \FedaPay\FedaPay::setApiKey(config('services.fedapay.secret_key'));
+            \FedaPay\FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
 
-        // Envoyer la notification email de confirmation
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->notify(new OrderPlaced($commande));
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
 
-        return redirect()->route('checkout.success', $commande->id);
+            $transaction = \FedaPay\Transaction::create([
+                'description' => 'Commande TIMEVA ' . $commande->reference,
+                'amount'      => (int) round($commande->montant),
+                'currency'    => ['iso' => 'XOF'],
+                'callback_url' => route('checkout.fedapay.callback', $commande->id),
+                'customer'    => [
+                    'firstname' => $user->prenom ?? $user->nom,
+                    'lastname'  => $user->nom,
+                    'email'     => $user->email,
+                ],
+            ]);
+
+            $token = $transaction->generateToken();
+
+            // Sauvegarder l'ID de transaction FedaPay
+            $commande->update(['fedapay_transaction_id' => $transaction->id]);
+
+            // Vider le panier avant la redirection
+            Session::forget('cart');
+
+            return redirect($token->url);
+
+        } catch (\Exception $e) {
+            // Si FedaPay échoue, supprimer la commande et informer l'utilisateur
+            $commande->delete();
+
+            return redirect()->route('checkout.index')
+                ->with('error', 'Erreur lors de l\'initialisation du paiement. Veuillez réessayer.');
+        }
+    }
+
+    /**
+     * Callback FedaPay — appelé après le paiement (redirection navigateur)
+     */
+    public function fedapayCallback(Request $request, string $commandeId)
+    {
+        $commande = Commande::findOrFail($commandeId);
+
+        // Vérifier que la commande appartient à l'utilisateur connecté
+        if ($commande->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        try {
+            \FedaPay\FedaPay::setApiKey(config('services.fedapay.secret_key'));
+            \FedaPay\FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
+
+            $transaction = \FedaPay\Transaction::retrieve($commande->fedapay_transaction_id);
+
+            if ($transaction->status === 'approved') {
+                $commande->update([
+                    'paiement_statut' => 'paye',
+                    'statut'          => 'confirmé',
+                ]);
+
+                // Envoyer la notification email de confirmation
+                /** @var \App\Models\User $user */
+                $user = Auth::user();
+                $user->notify(new OrderPlaced($commande));
+
+                return redirect()->route('checkout.success', $commande->id);
+
+            } else {
+                $commande->update(['paiement_statut' => 'echec']);
+
+                return redirect()->route('checkout.cancel')
+                    ->with('error', 'Le paiement a échoué ou a été annulé. Votre commande a été conservée, vous pouvez réessayer.');
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->route('checkout.cancel')
+                ->with('error', 'Impossible de vérifier le statut du paiement. Contactez le support.');
+        }
     }
 
     /**
