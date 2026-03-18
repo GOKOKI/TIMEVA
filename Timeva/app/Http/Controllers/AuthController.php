@@ -131,16 +131,14 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            ‘email’ => ‘required|email’,
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        // On tente l’envoi silencieusement, même si l’email n’existe pas
+        Password::sendResetLink($request->only(‘email’));
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', 'Lien de réinitialisation envoyé !')
-            : back()->withErrors(['email' => 'Impossible d’envoyer le lien.']);
+        // Toujours le même message — empêche de deviner quels emails sont enregistrés
+        return back()->with(‘status’, "Si cet email est associé à un compte, vous recevrez un lien de réinitialisation.");
     }
 
 

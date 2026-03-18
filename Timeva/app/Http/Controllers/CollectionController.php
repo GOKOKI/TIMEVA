@@ -21,10 +21,15 @@ class CollectionController extends Controller
 
         $produits = $query->paginate(12)->withQueryString();
 
+        $rawCounts = \Illuminate\Support\Facades\DB::table('products')
+            ->selectRaw("SUM(1) as tous, SUM(CASE WHEN category='watches' THEN 1 ELSE 0 END) as watches, SUM(CASE WHEN category='glasses' THEN 1 ELSE 0 END) as glasses")
+            ->where('is_active', true)
+            ->first();
+
         $counts = [
-            'tous'    => Product::where('is_active', true)->count(),
-            'watches' => Product::where('is_active', true)->where('category', 'watches')->count(),
-            'glasses' => Product::where('is_active', true)->where('category', 'glasses')->count(),
+            'tous'    => (int) $rawCounts->tous,
+            'watches' => (int) $rawCounts->watches,
+            'glasses' => (int) $rawCounts->glasses,
         ];
 
         return view('pages.collections', compact('produits', 'categorie', 'counts'));

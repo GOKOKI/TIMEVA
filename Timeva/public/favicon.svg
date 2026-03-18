@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fond noir arrondi -->
+  <rect width="64" height="64" rx="14" fill="#111827"/>
+  <!-- Lettre T élégante -->
+  <text x="32" y="46" font-family="Georgia, serif" font-size="38" font-weight="700"
+        fill="white" text-anchor="middle" letter-spacing="-1">T</text>
+  <!-- Trait doré sous le T -->
+  <rect x="18" y="50" width="28" height="2.5" rx="1.25" fill="#D4AF37"/>
+</svg>

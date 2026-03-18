@@ -76,7 +76,7 @@
             <div class="bg-white rounded-xl border border-gray-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-semibold text-gray-900">Variantes (couleur / taille / stock)</h2>
-                    <button type="button" @click="variants.push({ color: '', size: '', stock_quantity: 0 })"
+                    <button type="button" @click="variants.push({ color: '#000000', size: '', stock_quantity: 0 })"
                             class="text-sm text-gray-900 font-medium border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50">
                         + Ajouter une variante
                     </button>
@@ -85,10 +85,11 @@
                 <div class="space-y-3">
                     <template x-for="(variant, index) in variants" :key="index">
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="flex-1">
-                                <input type="text" :name="`variants[${index}][color]`" x-model="variant.color"
-                                       placeholder="Couleur *" required
-                                       class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-900">
+                            <div class="flex items-center gap-2">
+                                <input type="color" :name="`variants[${index}][color]`" x-model="variant.color"
+                                       required
+                                       class="w-10 h-10 rounded cursor-pointer border border-gray-300 p-0.5">
+                                <span class="text-xs text-gray-500 w-16" x-text="variant.color"></span>
                             </div>
                             <div class="flex-1">
                                 <input type="text" :name="`variants[${index}][size]`" x-model="variant.size"

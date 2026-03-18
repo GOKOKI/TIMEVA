@@ -107,8 +107,7 @@
                                 ? 'ring-2 ring-offset-2 ring-yellow-400 scale-110'
                                 : 'ring-1 ring-gray-200 hover:ring-gray-400'"
                             class="w-9 h-9 rounded-full transition-all duration-200 shadow-sm"
-                            style="background-color: {{ $color }};"
-                            title="{{ $color }}">
+                            style="background-color: {{ $color }};">
                     </button>
                     @endforeach
                 </div>
@@ -182,7 +181,7 @@
                     @else
                     <a href="{{ route('login') }}"
                        class="flex-1 text-center bg-gray-900 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-black transition-colors">
-                        Se connecter pour acheter
+                        Ajouter au Panier
                     </a>
                     @endauth
                 </div>

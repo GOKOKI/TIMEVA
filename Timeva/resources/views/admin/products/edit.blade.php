@@ -112,8 +112,10 @@
             @csrf
             <h3 class="text-sm font-semibold text-gray-700 mb-3">Ajouter une variante</h3>
             <div class="flex items-center gap-3">
-                <input type="text" name="color" placeholder="Couleur *" required
-                       class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-900">
+                <div class="flex items-center gap-2">
+                    <input type="color" name="color" value="#000000" required
+                           class="w-10 h-10 rounded cursor-pointer border border-gray-300 p-0.5">
+                </div>
                 <input type="text" name="size" placeholder="Taille"
                        class="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-900">
                 <input type="number" name="stock_quantity" placeholder="Stock" min="0" required

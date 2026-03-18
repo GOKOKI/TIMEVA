@@ -117,12 +117,11 @@ class CheckoutController extends Controller
      */
     public function fedapayCallback(Request $request, string $commandeId)
     {
+        abort_if(!Auth::check(), 401);
+
         $commande = Commande::findOrFail($commandeId);
 
-        // Vérifier que la commande appartient à l'utilisateur connecté
-        if ($commande->user_id !== Auth::id()) {
-            abort(403);
-        }
+        abort_if($commande->user_id !== Auth::id(), 403);
 
         try {
             \FedaPay\FedaPay::setApiKey(config('services.fedapay.secret_key'));
@@ -161,6 +160,8 @@ class CheckoutController extends Controller
      */
     public function success(Commande $commande)
     {
+        abort_if($commande->user_id !== Auth::id(), 403);
+
         $commande->load('articles');
 
         return view('checkout.success', compact('commande'));

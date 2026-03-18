@@ -32,6 +32,7 @@ class ProductController extends Controller
     {
         return Product::where('category', $category)
             ->where('is_active', true)
+            ->with('variants')
             ->paginate(12);
     }
 
@@ -50,6 +51,7 @@ class ProductController extends Controller
         $similaires = Product::where('category', $product->category)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
+            ->with('variants')
             ->limit(4)
             ->get();
 

@@ -13,11 +13,13 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 // ========== ROUTES INVITES (NON CONNECTÉS) ==========
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1')->name('register.store');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.store');
     Route::get('/forgot-password', [AuthController::class, 'showForgot'])->name('forgot');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot.send');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:3,1')->name('forgot.send');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:3,1')->name('password.update');
 });
 
 // ========== ROUTES AUTHENTIFIÉES (CONNECTÉS) ==========

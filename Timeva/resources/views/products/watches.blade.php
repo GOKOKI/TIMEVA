@@ -38,7 +38,7 @@
                             @foreach($product->variants->pluck('color')->filter()->unique()->take(4) as $color)
                             <span class="w-4 h-4 rounded-full border border-gray-200"
                                   style="background-color: {{ $color }};"
-                                  title="{{ $color }}"></span>
+                                  ></span>
                             @endforeach
                         </div>
                         @endif

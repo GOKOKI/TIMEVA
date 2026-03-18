@@ -100,8 +100,7 @@
                                 <div class="flex gap-1.5">
                                     @foreach($produit->variants->pluck('color')->filter()->unique()->take(4) as $color)
                                     <span class="w-4 h-4 rounded-full border border-gray-200"
-                                          style="background-color: {{ $color }};"
-                                          title="{{ $color }}"></span>
+                                          style="background-color: {{ $color }};"></span>
                                     @endforeach
                                 </div>
                                 @endif
