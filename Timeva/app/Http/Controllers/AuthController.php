@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Profil;
 use App\Models\Panier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -29,29 +27,28 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'prenom' => 'nullable|string|max:255',
-            'nom' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'tel' => 'nullable|string|max:20',
-            'adresse' => 'nullable|string|max:255',
-            'ville' => 'nullable|string|max:100',
+            'prenom'      => 'nullable|string|max:255',
+            'nom'         => 'nullable|string|max:255',
+            'email'       => 'required|string|email|max:255|unique:users,email',
+            'password'    => 'required|string|min:8|confirmed',
+            'tel'         => 'nullable|string|max:20',
+            'adresse'     => 'nullable|string|max:255',
+            'ville'       => 'nullable|string|max:100',
             'code_postal' => 'nullable|string|max:10',
-            'pays' => 'nullable|string|max:100',
+            'pays'        => 'nullable|string|max:100',
         ]);
 
-        // Création utilisateur
         $user = User::create([
             'prenom'   => $validated['prenom'] ?? null,
             'nom'      => $validated['nom'] ?? null,
-            'email' => $validated['email'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
         Auth::login($user);
 
         return redirect()->route('home')
-            ->with('success', 'Inscription réussie !');
+            ->with('success', 'Inscription reussie !');
     }
 
 
@@ -70,12 +67,11 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-
             $request->session()->regenerate();
             $this->loadCartFromDb();
 
@@ -88,7 +84,7 @@ class AuthController extends Controller
             }
 
             return redirect()->intended(route('home'))
-                ->with('success', 'Connexion réussie !');
+                ->with('success', 'Connexion reussie !');
         }
 
         return back()->withErrors([
@@ -112,7 +108,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home')
-            ->with('success', 'Déconnexion réussie.');
+            ->with('success', 'Deconnexion reussie.');
     }
 
 
@@ -131,14 +127,12 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            ‘email’ => ‘required|email’,
+            'email' => 'required|email',
         ]);
 
-        // On tente l’envoi silencieusement, même si l’email n’existe pas
-        Password::sendResetLink($request->only(‘email’));
+        Password::sendResetLink($request->only('email'));
 
-        // Toujours le même message — empêche de deviner quels emails sont enregistrés
-        return back()->with(‘status’, "Si cet email est associé à un compte, vous recevrez un lien de réinitialisation.");
+        return back()->with('status', 'Si cet email est associe a un compte, vous recevrez un lien de reinitialisation.');
     }
 
 
@@ -149,39 +143,34 @@ class AuthController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function showResetForm($token)
+    public function showResetForm(Request $request, $token)
     {
         return view('auth.reset', [
-            'token' => $token
+            'token' => $token,
+            'email' => $request->query('email'),
         ]);
     }
 
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
+            'token'    => 'required',
+            'email'    => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
 
         $status = Password::reset(
-            $request->only(
-                'email',
-                'password',
-                'password_confirmation',
-                'token'
-            ),
+            $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
-                    'password' => Hash::make($password)
+                    'password' => Hash::make($password),
                 ])->save();
             }
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')
-                ->with('success', 'Mot de passe réinitialisé avec succès !')
-            : back()->withErrors(['email' => 'Échec de la réinitialisation.']);
+            ? redirect()->route('login')->with('success', 'Mot de passe reinitialise avec succes !')
+            : back()->withErrors(['email' => 'Echec de la reinitialisation.']);
     }
 
 
@@ -192,10 +181,6 @@ class AuthController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Charge le panier sauvegardé en DB dans la session.
-     * Les articles déjà présents en session ont la priorité.
-     */
     private function loadCartFromDb(): void
     {
         $panierItems = Panier::with('variant.product')
@@ -211,7 +196,6 @@ class AuthController extends Controller
         foreach ($panierItems as $item) {
             $variantId = $item->variant_id;
 
-            // La session a la priorité — on n'écrase pas ce que l'utilisateur a ajouté avant de se connecter
             if (isset($cart[$variantId]) || !$item->variant || !$item->variant->product) {
                 continue;
             }
