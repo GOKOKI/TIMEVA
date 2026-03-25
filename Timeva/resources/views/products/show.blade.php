@@ -33,6 +33,14 @@
         allVariants: {{ $variantsJson }},
         selectedColor: null,
         selectedSize: null,
+        baseUrl: '{{ url('cart/add') }}',
+
+        init() {
+            if (this.allVariants.length) {
+                this.selectedColor = this.allVariants[0].color;
+                this.selectedSize = this.allVariants[0].size;
+            }
+        },
 
         get matchedVariant() {
             if (!this.selectedColor) return null;
@@ -42,26 +50,12 @@
             ) ?? null;
         },
         get stock() { return this.matchedVariant ? this.matchedVariant.stock : 0; },
-        get canAddToCart() { return this.matchedVariant && this.matchedVariant.stock > 0; },
+        get canAddToCart() { return this.matchedVariant !== null && this.matchedVariant.stock > 0; },
+        get formAction() { return this.matchedVariant ? this.baseUrl + '/' + this.matchedVariant.id : '#'; },
 
         pick(color, size) {
             this.selectedColor = color;
             if (size !== undefined) this.selectedSize = size;
-            this.$nextTick(() => this.syncForm());
-        },
-        syncForm() {
-            const v = this.matchedVariant;
-            const form = document.getElementById('add-to-cart-form');
-            const btn  = document.getElementById('addToCartBtn');
-            const qty  = document.getElementById('quantity_input');
-            if (v) {
-                form.action = '{{ url('cart/add') }}/' + v.id;
-                btn.disabled = v.stock <= 0;
-                qty.max = v.stock;
-            } else {
-                form.action = '#';
-                btn.disabled = true;
-            }
         }
     }" class="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
@@ -153,7 +147,7 @@
             </div>
 
             {{-- ===== QUANTITÉ + PANIER ===== --}}
-            <form id="add-to-cart-form" action="#" method="POST">
+            <form id="add-to-cart-form" :action="formAction" method="POST">
                 @csrf
                 <div class="flex items-center gap-4">
 
@@ -173,7 +167,7 @@
                     @auth
                     <button type="submit"
                             id="addToCartBtn"
-                            {{ $variants->count() ? 'disabled' : '' }}
+                            :disabled="!canAddToCart"
                             class="flex-1 bg-gray-900 text-white py-3.5 rounded-xl text-sm font-semibold
                                    hover:bg-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                         Ajouter au panier
