@@ -27,6 +27,7 @@ class User extends Authenticatable
         'prenom',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -48,7 +49,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'is_admin'          => 'boolean',
         ];
     }
 
@@ -74,10 +76,10 @@ class User extends Authenticatable
         return $this->hasMany(Panier::class, 'user_id', 'id');
     }
 
-    // Accesseur pour vérifier si l'utilisateur est admin
+    // Accesseur pour vérifier si l'utilisateur est admin (colonne directe)
     public function getIsAdminAttribute(): bool
     {
-        return $this->profil && $this->profil->role === 'admin';
+        return (bool) $this->attributes['is_admin'];
     }
 
     // Accesseur pour obtenir le nom complet depuis le profil

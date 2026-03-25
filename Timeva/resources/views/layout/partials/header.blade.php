@@ -28,23 +28,25 @@
                 <!-- ACTIONS DROITE PC -->
                 <div class="hidden lg:flex items-center gap-4">
                     @auth
-                    <!-- Panier PC -->
+                    @php $isAdmin = Auth::user()->is_admin; @endphp
+
+                    @if(!$isAdmin)
+                    <!-- Panier PC (client seulement) -->
                     <a href="{{ route('cart.index') }}" class="nav-link flex items-center gap-1.5 relative">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                         <span>Panier</span>
-                        @php
-                            $cartCount = \App\Models\Panier::where('user_id', Auth::id())->sum('quantite');
-                        @endphp
+                        @php $cartCount = \App\Models\Panier::where('user_id', Auth::id())->sum('quantite'); @endphp
                         @if($cartCount > 0)
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                             {{ $cartCount }}
                         </span>
                         @endif
                     </a>
+                    @endif
 
-                    <!-- Dropdown Mon Compte -->
+                    <!-- Dropdown Compte -->
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="nav-link flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,22 +58,32 @@
                             </svg>
                         </button>
 
-                        <div x-show="open" 
-                             @click.away="open = false"
+                        <div x-show="open" @click.away="open = false"
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="transform opacity-0 scale-95"
                              x-transition:enter-end="transform opacity-100 scale-100"
                              x-transition:leave="transition ease-in duration-150"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-44 bg-black/90 backdrop-blur-sm rounded-lg shadow-xl py-2 z-50 border border-white/20"
+                             class="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-sm rounded-lg shadow-xl py-2 z-50 border border-white/20"
                              style="display: none;">
-                            <a href="{{ route('profile.index') }}" @click="open = false" class="block px-4 py-2.5 text-sm text-white hover:text-gray-300 hover:bg-white/10 transition-colors">
-                                Mon Profil
-                            </a>
-                            <a href="{{ route('profile.orders') }}" @click="open = false" class="block px-4 py-2.5 text-sm text-white hover:text-gray-300 hover:bg-white/10 transition-colors">
-                                Mes Commandes
-                            </a>
+                            @if($isAdmin)
+                                {{-- Menu Admin --}}
+                                <a href="{{ route('admin.dashboard') }}" @click="open = false"
+                                   class="block px-4 py-2.5 text-sm text-yellow-400 hover:text-yellow-300 hover:bg-white/10 transition-colors font-semibold">
+                                    Panneau Admin
+                                </a>
+                            @else
+                                {{-- Menu Client --}}
+                                <a href="{{ route('profile.index') }}" @click="open = false"
+                                   class="block px-4 py-2.5 text-sm text-white hover:text-gray-300 hover:bg-white/10 transition-colors">
+                                    Mon Profil
+                                </a>
+                                <a href="{{ route('profile.orders') }}" @click="open = false"
+                                   class="block px-4 py-2.5 text-sm text-white hover:text-gray-300 hover:bg-white/10 transition-colors">
+                                    Mes Commandes
+                                </a>
+                            @endif
                             <div class="border-t border-white/20 my-2"></div>
                             <form action="{{ route('logout') }}" method="POST" @submit="open = false">
                                 @csrf
@@ -142,28 +154,36 @@
                         <li><a href="#contact" class="block text-white hover:text-gray-300 py-3 px-4 font-medium rounded-lg hover:bg-white/5 transition-all text-base">Contact</a></li>
 
                         @auth
+                        @if(!$isAdmin)
                         <li><a href="{{ route('cart.index') }}" class="block text-white hover:text-gray-300 py-3 px-4 font-medium rounded-lg hover:bg-white/5 transition-all text-base">
                             Panier
-                            @if($cartCount > 0)
+                            @if(isset($cartCount) && $cartCount > 0)
                                 <span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $cartCount }}</span>
                             @endif
                         </a></li>
+                        @endif
 
                         <li class="border-t border-white/20 pt-4 mt-4" x-data="{ open: false }">
                             <button @click="open = !open" class="w-full flex items-center justify-between text-white hover:text-gray-300 hover:bg-white/5 py-3 px-4 font-medium rounded-lg transition-all">
-                                <span class="text-base">Mon Compte</span>
+                                <span class="text-base">{{ Auth::user()->prenom ?? Auth::user()->nom }}</span>
                                 <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
 
                             <div x-show="open" class="mt-2 ml-4 space-y-2" style="display: none;">
-                                <a href="{{ route('profile.index') }}" class="block text-gray-300 hover:text-white py-2 pl-4 border-l-2 border-white/30 hover:border-white transition-colors text-sm">
-                                    Mon Profil
-                                </a>
-                                <a href="{{ route('profile.orders') }}" class="block text-gray-300 hover:text-white py-2 pl-4 border-l-2 border-white/30 hover:border-white transition-colors text-sm">
-                                    Mes Commandes
-                                </a>
+                                @if($isAdmin)
+                                    <a href="{{ route('admin.dashboard') }}" class="block text-yellow-400 hover:text-yellow-300 py-2 pl-4 border-l-2 border-yellow-400/50 hover:border-yellow-400 transition-colors text-sm font-semibold">
+                                        Panneau Admin
+                                    </a>
+                                @else
+                                    <a href="{{ route('profile.index') }}" class="block text-gray-300 hover:text-white py-2 pl-4 border-l-2 border-white/30 hover:border-white transition-colors text-sm">
+                                        Mon Profil
+                                    </a>
+                                    <a href="{{ route('profile.orders') }}" class="block text-gray-300 hover:text-white py-2 pl-4 border-l-2 border-white/30 hover:border-white transition-colors text-sm">
+                                        Mes Commandes
+                                    </a>
+                                @endif
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
                                     <button type="submit" class="w-full text-left text-red-400 hover:text-red-300 py-2 pl-4 border-l-2 border-white/30 hover:border-white transition-colors text-sm">

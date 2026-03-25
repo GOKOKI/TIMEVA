@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
                 'nom'      => 'Admin',
                 'prenom'   => 'TIMEVA',
                 'password' => Hash::make('Admin@2024!'),
+                'is_admin' => true,
             ]
         );
         Profil::firstOrCreate(
